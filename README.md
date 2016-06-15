@@ -90,7 +90,7 @@ docker rmi <image>
 Get a dump of my database before killing my container?
 
 ```
-docker-compose exec db sh -c 'exec mysqldump db -u "db" -p"db"' > 100-dump.sql
+docker-compose exec db sh -c 'exec mysqldump db -u "db" -p"db"' > private/docker/db/initdb.d/100-dump.sql
 ```
 
 Remove all running services defined in my docker-compose.yml

@@ -1,0 +1,42 @@
+version: "2"
+
+services:
+  web:
+    image: reload/drupal-apache-ssl
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      # Map webroot
+      - './:/var/www/html'
+
+      # Map docker-specific settings-files.
+      - './private/docker/docker.settings.php:/var/www/html/sites/default/settings.php:ro'
+      - './private/docker/docker.services.yml:/var/www/html/sites/default/services.yml:ro'
+
+      # Configure cron-job that will hit cores 
+      - './private/docker/etc/cron.conf:/etc/cron.d/cron.conf:ro'
+      - './private/docker/init/prepare-environment.sh:/etc/my_init.d/prepare-environment.sh'
+
+    links:
+      - db
+      
+  db:
+    image: mariadb:10
+    ports:
+      - '3306:3306'
+    volumes:
+      - './private/docker/db/initdb.d:/docker-entrypoint-initdb.d'
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: db
+      MYSQL_USER: db
+      MYSQL_PASSWORD: db
+
+  drush:
+    image: drush/drush:8-php5-alpine
+    links:
+      - db
+    volumes_from:
+      - web
+    working_dir: /var/www/html
